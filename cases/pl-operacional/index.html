@@ -1,1 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P&L Operacional · Industria Cárnica Santiago 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f1117; --surface: #171b26; --surface2: #1e2333;
+  --border: #2a2f42; --border-light: #353b52;
+  --text: #e8ecf4; --text-mid: #8892aa; --text-dim: #4a5068;
+  --accent: #4f8ef7; --accent-dim: #1a2f55;
+  --green: #22c55e; --green-dim: #0d2b1a;
+  --yellow: #f59e0b; --yellow-dim: #2a1f09;
+  --red: #ef4444; --red-dim: #2a0f0f;
+  --purple: #a855f7; --purple-dim: #2a1040;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+html, body { height: 100%; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 
+/* TOOLBAR */
+.pbi-toolbar { background: #1b1f2e; border-bottom: 1px solid var(--border); height: 44px; display: flex; align-items: center; padding: 0 16px; gap: 16px; position: sticky; top: 0; z-index: 100; }
+.pbi-logo { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: var(--text); letter-spacing: 0.5px; }
+.pbi-logo svg { width: 20px; height: 20px; }
+.pbi-title { font-size: 12px; color: var(--text-mid); border-left: 1px solid var(--border); padding-left: 16px; }
+.pbi-tabs { display: flex; margin-left: auto; gap: 2px; }
+.pbi-tab { font-size: 11px; padding: 5px 14px; border-radius: 4px; color: var(--text-mid); cursor: pointer; transition: all 0.15s; }
+.pbi-tab.active { background: var(--accent-dim); color: var(--accent); }
+.pbi-tab:hover:not(.active) { background: var(--surface2); color: var(--text); }
+
+/* FILTER BAR */
+.filter-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.filter-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); white-space: nowrap; }
+.filter-group { display: flex; gap: 5px; align-items: center; }
+.chip { font-size: 11px; padding: 4px 11px; border-radius: 3px; border: 1px solid var(--border); color: var(--text-mid); cursor: pointer; transition: all 0.15s; background: transparent; }
+.chip.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
+.chip:hover:not(.active) { border-color: var(--border-light); color: var(--text); }
+.fdiv { width: 1px; height: 20px; background: var(--border); }
+
+/* CANVAS */
+.canvas { padding: 16px 20px; display: grid; gap: 14px; }
+
+/* KPI ROW */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px 18px; position: relative; overflow: hidden; }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.kpi-card.blue::before { background: var(--accent); }
+.kpi-card.green::before { background: var(--green); }
+.kpi-card.yellow::before { background: var(--yellow); }
+.kpi-card.red::before { background: var(--red); }
+.kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-mid); margin-bottom: 8px; }
+.kpi-value { font-family: var(--mono); font-size: 26px; font-weight: 500; color: var(--text); line-height: 1; letter-spacing: -1px; margin-bottom: 8px; }
+.kpi-sub { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-dim); }
+.delta { font-family: var(--mono); font-size: 11px; font-weight: 500; padding: 2px 6px; border-radius: 3px; }
+.delta-up { background: var(--green-dim); color: var(--green); }
+.delta-warn { background: var(--yellow-dim); color: var(--yellow); }
+.delta-down { background: var(--red-dim); color: var(--red); }
+
+/* MID ROW */
+.mid-row { display: grid; grid-template-columns: 400px 1fr; gap: 14px; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 18px; }
+.panel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.panel-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-mid); }
+.panel-period { font-size: 10px; color: var(--text-dim); font-family: var(--mono); }
+
+/* WATERFALL */
+.waterfall { display: flex; flex-direction: column; gap: 5px; }
+.wf-row { display: flex; align-items: center; gap: 8px; }
+.wf-label { font-size: 11px; color: var(--text-mid); width: 145px; flex-shrink: 0; text-align: right; }
+.wf-label.bold { color: var(--text); font-weight: 500; }
+.wf-bar-area { flex: 1; position: relative; height: 22px; }
+.wf-bar { height: 18px; border-radius: 2px; position: absolute; top: 2px; width: 0; transition: width 0.9s cubic-bezier(0.4,0,0.2,1); }
+.wf-bar.income  { background: var(--accent); left: 0; }
+.wf-bar.cost    { background: var(--red); }
+.wf-bar.sub     { background: var(--green); left: 0; }
+.wf-bar.expense { background: var(--yellow); }
+.wf-bar.result  { background: var(--purple); left: 0; }
+.wf-val { font-family: var(--mono); font-size: 10px; color: var(--text-mid); width: 72px; text-align: right; flex-shrink: 0; }
+.wf-val.bold { color: var(--text); }
+.wf-pct { font-size: 9px; color: var(--text-dim); width: 38px; text-align: right; flex-shrink: 0; }
+.wf-sep { height: 1px; background: var(--border); margin: 3px 0; }
+
+/* TREND */
+.legend { display: flex; gap: 18px; margin-bottom: 10px; }
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-mid); }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.trend-wrap { position: relative; height: 210px; }
+
+/* BOTTOM ROW */
+.bottom-row { display: grid; grid-template-columns: 1fr 260px; gap: 14px; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table thead tr { border-bottom: 1px solid var(--border); }
+.data-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); padding: 6px 10px; text-align: left; font-weight: 400; }
+.data-table th:not(:first-child) { text-align: right; }
+.data-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+.data-table tbody tr:hover { background: var(--surface2); }
+.data-table td { font-size: 12px; padding: 9px 10px; color: var(--text-mid); font-family: var(--mono); }
+.data-table td:first-child { font-family: var(--sans); font-size: 12px; color: var(--text); }
+.data-table td:not(:first-child) { text-align: right; }
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-family: var(--sans); padding: 2px 8px; border-radius: 3px; font-weight: 500; }
+.b-green { background: var(--green-dim); color: var(--green); }
+.b-yellow { background: var(--yellow-dim); color: var(--yellow); }
+.b-red { background: var(--red-dim); color: var(--red); }
+
+/* DONUT */
+.donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.donut-legend { width: 100%; display: flex; flex-direction: column; gap: 9px; }
+.dl-row { display: flex; justify-content: space-between; align-items: center; }
+.dl-left { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-mid); }
+.dl-bar { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.dl-val { font-family: var(--mono); font-size: 11px; color: var(--text); }
+
+/* FOOTER */
+.dash-footer { padding: 10px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.footer-text { font-size: 10px; color: var(--text-dim); font-family: var(--mono); }
+.refresh-badge { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--green); font-family: var(--mono); }
+.rdot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* TOOLTIP */
+.tooltip { position: fixed; background: var(--surface2); border: 1px solid var(--border-light); border-radius: 5px; padding: 10px 14px; font-size: 11px; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 999; min-width: 160px; }
+.tooltip.show { opacity: 1; }
+.tt-title { color: var(--text-mid); font-size: 10px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+.tt-val { color: var(--text); font-family: var(--mono); line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<div class="pbi-toolbar">
+  <div class="pbi-logo">
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="14" width="4" height="8" fill="#F2C811" rx="0.5"/>
+      <rect x="8" y="9" width="4" height="13" fill="#F2C811" opacity="0.85" rx="0.5"/>
+      <rect x="14" y="4" width="4" height="18" fill="#F2C811" opacity="0.7" rx="0.5"/>
+      <rect x="20" y="1" width="2" height="21" fill="#F2C811" opacity="0.5" rx="0.5"/>
+    </svg>
+    Microsoft Power BI
+  </div>
+  <div class="pbi-title">P&L Operacional · Industria Cárnica · Santiago 2025</div>
+  <div class="pbi-tabs">
+    <div class="pbi-tab active">Resumen Gerencial</div>
+    <div class="pbi-tab">Detalle Canal</div>
+    <div class="pbi-tab">Evolución Costos</div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <span class="filter-label">Período</span>
+  <div class="filter-group">
+    <div class="chip">Q1</div><div class="chip">Q2</div>
+    <div class="chip">Q3</div><div class="chip">Q4</div>
+    <div class="chip active">Año completo</div>
+  </div>
+  <div class="fdiv"></div>
+  <span class="filter-label">Línea</span>
+  <div class="filter-group">
+    <div class="chip active">Todas</div>
+    <div class="chip">Cerdo Fresco</div>
+    <div class="chip">Congelados</div>
+    <div class="chip">Marinados</div>
+    <div class="chip">Granel</div>
+  </div>
+  <div class="fdiv"></div>
+  <span class="filter-label">Segmento</span>
+  <div class="filter-group">
+    <div class="chip active">Todos</div>
+    <div class="chip">Retail</div>
+    <div class="chip">Pyme</div>
+  </div>
+</div>
+
+<div class="canvas">
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi-card blue">
+      <div class="kpi-label">Ingresos Netos YTD</div>
+      <div class="kpi-value">$2.345B</div>
+      <div class="kpi-sub">
+        <span class="delta delta-up">408.8K kg</span>
+        <span>vendidos en el año</span>
+      </div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Margen Bruto</div>
+      <div class="kpi-value">16.7%</div>
+      <div class="kpi-sub">
+        <span class="delta delta-warn">$390.9M</span>
+        <span>sobre ingresos netos</span>
+      </div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Margen Operacional</div>
+      <div class="kpi-value">10.7%</div>
+      <div class="kpi-sub">
+        <span class="delta delta-up">$249.9M</span>
+        <span>después de logística y admin</span>
+      </div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Costo / Ingreso</div>
+      <div class="kpi-value">89.3%</div>
+      <div class="kpi-sub">
+        <span class="delta delta-down">$2.095B</span>
+        <span>costo total operacional</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MID ROW -->
+  <div class="mid-row">
+
+    <!-- WATERFALL -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">P&L Simplificado · Waterfall</div>
+        <div class="panel-period">Ene–Dic 2025</div>
+      </div>
+      <div class="waterfall" id="wf"></div>
+    </div>
+
+    <!-- TENDENCIA -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Tendencia Mensual</div>
+        <div class="panel-period">Ene–Dic 2025</div>
+      </div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#4f8ef7"></div>Ingresos netos</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Costo total</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#a855f7"></div>Margen operacional</div>
+      </div>
+      <div class="trend-wrap">
+        <svg id="trendSvg" width="100%" height="100%" viewBox="0 0 620 205" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM ROW -->
+  <div class="bottom-row">
+
+    <!-- TABLA -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Detalle por Línea de Producto</div>
+        <div class="panel-period">Acumulado 2025</div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Línea</th>
+            <th>Ingresos</th>
+            <th>Mix</th>
+            <th>Margen Bruto</th>
+            <th>Margen Op.</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Marinados</td>
+            <td>$561M</td>
+            <td>23.9%</td>
+            <td>18.9%</td>
+            <td>13.7%</td>
+            <td><span class="badge b-green">● Saludable</span></td>
+          </tr>
+          <tr>
+            <td>Congelados</td>
+            <td>$606M</td>
+            <td>25.8%</td>
+            <td>18.1%</td>
+            <td>12.8%</td>
+            <td><span class="badge b-green">● Saludable</span></td>
+          </tr>
+          <tr>
+            <td>Cerdo Fresco</td>
+            <td>$776M</td>
+            <td>33.1%</td>
+            <td>15.1%</td>
+            <td>8.7%</td>
+            <td><span class="badge b-yellow">● En revisión</span></td>
+          </tr>
+          <tr>
+            <td>Granel HORECA/Pyme</td>
+            <td>$397M</td>
+            <td>16.9%</td>
+            <td>14.4%</td>
+            <td>7.1%</td>
+            <td><span class="badge b-red">● Alerta</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- DONUT -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Mix de Ingresos</div>
+        <div class="panel-period">2025</div>
+      </div>
+      <div class="donut-wrap">
+        <svg width="130" height="130" viewBox="0 0 130 130" style="overflow:visible">
+          <circle cx="65" cy="65" r="46" fill="none" stroke="#2a2f42" stroke-width="20"/>
+          <!-- Cerdo Fresco 33.1% → 95.7deg → dasharray = 33.1% × 289 = 95.7 -->
+          <circle cx="65" cy="65" r="46" fill="none" stroke="#4f8ef7" stroke-width="20"
+            stroke-dasharray="95.7 289" stroke-dashoffset="0" transform="rotate(-90 65 65)"/>
+          <!-- Congelados 25.8% → 74.5 -->
+          <circle cx="65" cy="65" r="46" fill="none" stroke="#22c55e" stroke-width="20"
+            stroke-dasharray="74.5 289" stroke-dashoffset="-95.7" transform="rotate(-90 65 65)"/>
+          <!-- Marinados 23.9% → 69.1 -->
+          <circle cx="65" cy="65" r="46" fill="none" stroke="#f59e0b" stroke-width="20"
+            stroke-dasharray="69.1 289" stroke-dashoffset="-170.2" transform="rotate(-90 65 65)"/>
+          <!-- Granel 16.9% → 48.8 -->
+          <circle cx="65" cy="65" r="46" fill="none" stroke="#a855f7" stroke-width="20"
+            stroke-dasharray="48.8 289" stroke-dashoffset="-239.3" transform="rotate(-90 65 65)"/>
+          <text x="65" y="60" text-anchor="middle" fill="#e8ecf4" font-size="15" font-weight="500" font-family="IBM Plex Mono, monospace">$2.345B</text>
+          <text x="65" y="75" text-anchor="middle" fill="#8892aa" font-size="9" font-family="IBM Plex Sans, sans-serif">CLP ingresos</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="dl-row">
+            <div class="dl-left"><div class="dl-bar" style="background:#4f8ef7"></div>Cerdo Fresco</div>
+            <span class="dl-val">33.1%</span>
+          </div>
+          <div class="dl-row">
+            <div class="dl-left"><div class="dl-bar" style="background:#22c55e"></div>Congelados</div>
+            <span class="dl-val">25.8%</span>
+          </div>
+          <div class="dl-row">
+            <div class="dl-left"><div class="dl-bar" style="background:#f59e0b"></div>Marinados</div>
+            <span class="dl-val">23.9%</span>
+          </div>
+          <div class="dl-row">
+            <div class="dl-left"><div class="dl-bar" style="background:#a855f7"></div>Granel HORECA</div>
+            <span class="dl-val">16.9%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="dash-footer">
+  <div class="footer-text">Fuente: ERP Operaciones · 1.109 transacciones · 408.778 kg · Período: Ene–Dic 2025</div>
+  <div class="refresh-badge"><div class="rdot"></div>Datos actualizados · 31/12/2025</div>
+</div>
+
+<div class="tooltip" id="tooltip">
+  <div class="tt-title" id="tt-title"></div>
+  <div class="tt-val" id="tt-val"></div>
+</div>
+
+<script>
+// ── DATOS REALES ──
+const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const mesesFull = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const ingresos = [160.6,156.5,171.1,187.9,179.2,222.8,240.4,212.8,180.9,171.8,235.9,225.4];
+const costos   = [146.3,140.7,154.5,168.7,158.9,200.1,211.5,190.0,161.6,154.3,210.0,198.8];
+const margenOp = [14.3,15.7,16.6,19.2,20.3,22.7,29.0,22.8,19.3,17.5,25.9,26.7];
+
+// ── WATERFALL DATA (reales) ──
+const MAX_ING = 2345.3;
+const wfData = [
+  { label:'Ingresos netos',    val: 2345.3, pct:'100%',  type:'income'  },
+  { label:'(-) Materia prima', val:-1695.7, pct:'72.3%', type:'cost'    },
+  { label:'(-) Proceso',       val: -150.7, pct:'6.4%',  type:'cost'    },
+  { label:'(-) Packaging',     val:  -74.0, pct:'3.2%',  type:'cost'    },
+  { label:'(-) Merma',         val:  -33.9, pct:'1.4%',  type:'cost'    },
+  { label:'= Margen Bruto',    val:  390.9, pct:'16.7%', type:'sub'     },
+  { label:'(-) Logística',     val: -118.4, pct:'5.0%',  type:'expense' },
+  { label:'(-) Administración',val:  -22.7, pct:'1.0%',  type:'expense' },
+  { label:'= Margen Op.',      val:  249.9, pct:'10.7%', type:'result'  },
+];
+
+function buildWaterfall() {
+  const wf = document.getElementById('wf');
+  const BAR_W = 180;
+  let cursor = MAX_ING;
+
+  wfData.forEach((d, i) => {
+    if (i === 5 || i === 8) {
+      const sep = document.createElement('div');
+      sep.className = 'wf-sep';
+      wf.appendChild(sep);
+    }
+
+    const row = document.createElement('div');
+    row.className = 'wf-row';
+    const isBold = d.type === 'income' || d.type === 'sub' || d.type === 'result';
+    const dispVal = d.val > 0 ? `$${d.val}M` : `-$${Math.abs(d.val)}M`;
+
+    row.innerHTML = `
+      <div class="wf-label ${isBold ? 'bold' : ''}">${d.label}</div>
+      <div class="wf-bar-area" style="max-width:${BAR_W}px">
+        <div class="wf-bar ${d.type}" id="bar${i}"></div>
+      </div>
+      <div class="wf-val ${isBold ? 'bold' : ''}">${dispVal}</div>
+      <div class="wf-pct">${d.pct}</div>
+    `;
+    wf.appendChild(row);
+
+    setTimeout(() => {
+      const bar = document.getElementById('bar' + i);
+      const w = Math.abs(d.val) / MAX_ING * BAR_W;
+      bar.style.width = w + 'px';
+      if (d.type === 'cost' || d.type === 'expense') {
+        const offset = (cursor - Math.abs(d.val)) / MAX_ING * BAR_W;
+        bar.style.left = offset + 'px';
+        cursor -= Math.abs(d.val);
+      } else if (d.type === 'sub' || d.type === 'result') {
+        bar.style.left = '0px';
+        cursor = d.val;
+      }
+    }, i * 70);
+  });
+}
+
+// ── TREND CHART ──
+function buildTrend() {
+  const svg = document.getElementById('trendSvg');
+  const W = 620, H = 205;
+  const PAD = { l: 38, r: 12, t: 8, b: 22 };
+  const maxY = 270;
+
+  const xPos = (i) => PAD.l + (i / 11) * (W - PAD.l - PAD.r);
+  const yPos = (v) => PAD.t + (1 - v / maxY) * (H - PAD.t - PAD.b);
+
+  // Grid
+  [0, 90, 180, 270].forEach(v => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', PAD.l); line.setAttribute('x2', W - PAD.r);
+    line.setAttribute('y1', yPos(v)); line.setAttribute('y2', yPos(v));
+    line.setAttribute('stroke','#2a2f42'); line.setAttribute('stroke-width','0.5');
+    svg.appendChild(line);
+    if (v > 0) {
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', PAD.l - 5); t.setAttribute('y', yPos(v) + 3);
+      t.setAttribute('text-anchor','end'); t.setAttribute('fill','#4a5068');
+      t.setAttribute('font-size','9'); t.setAttribute('font-family','IBM Plex Mono, monospace');
+      t.textContent = v;
+      svg.appendChild(t);
+    }
+  });
+
+  // Month labels
+  months.forEach((m, i) => {
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', xPos(i)); t.setAttribute('y', H - 4);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('fill','#4a5068');
+    t.setAttribute('font-size','9'); t.setAttribute('font-family','IBM Plex Sans, sans-serif');
+    t.textContent = m;
+    svg.appendChild(t);
+  });
+
+  function drawLine(data, color, fillColor) {
+    const pts = data.map((v,i) => `${xPos(i)},${yPos(v)}`).join(' L ');
+    if (fillColor) {
+      const area = document.createElementNS('http://www.w3.org/2000/svg','path');
+      area.setAttribute('d', `M ${xPos(0)},${yPos(data[0])} L ${pts} L ${xPos(11)},${H - PAD.b} L ${xPos(0)},${H - PAD.b} Z`);
+      area.setAttribute('fill', fillColor); area.setAttribute('opacity','0.07');
+      svg.appendChild(area);
+    }
+    const line = document.createElementNS('http://www.w3.org/2000/svg','path');
+    line.setAttribute('d', `M ${xPos(0)},${yPos(data[0])} L ${pts}`);
+    line.setAttribute('stroke', color); line.setAttribute('stroke-width','1.8');
+    line.setAttribute('fill','none'); line.setAttribute('stroke-linejoin','round');
+    svg.appendChild(line);
+    // Last dot
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx', xPos(11)); dot.setAttribute('cy', yPos(data[11]));
+    dot.setAttribute('r','3.5'); dot.setAttribute('fill', color);
+    dot.setAttribute('stroke','#0f1117'); dot.setAttribute('stroke-width','2');
+    svg.appendChild(dot);
+  }
+
+  drawLine(ingresos, '#4f8ef7', '#4f8ef7');
+  drawLine(costos, '#ef4444', '#ef4444');
+  drawLine(margenOp, '#a855f7', '#a855f7');
+
+  // Hover overlay
+  months.forEach((m, i) => {
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', xPos(i) - 24); rect.setAttribute('y', PAD.t);
+    rect.setAttribute('width', 48); rect.setAttribute('height', H - PAD.t - PAD.b);
+    rect.setAttribute('fill','transparent'); rect.style.cursor = 'crosshair';
+    rect.addEventListener('mouseenter', (e) => {
+      document.getElementById('tt-title').textContent = mesesFull[i] + ' 2025';
+      document.getElementById('tt-val').innerHTML =
+        `<span style="color:#4f8ef7">▐ Ingresos  $${ingresos[i]}M</span><br>` +
+        `<span style="color:#ef4444">▐ Costos    $${costos[i]}M</span><br>` +
+        `<span style="color:#a855f7">▐ Marg. Op. $${margenOp[i]}M</span>`;
+      moveTooltip(e);
+      document.getElementById('tooltip').classList.add('show');
+    });
+    rect.addEventListener('mousemove', moveTooltip);
+    rect.addEventListener('mouseleave', () => document.getElementById('tooltip').classList.remove('show'));
+    svg.appendChild(rect);
+  });
+}
+
+function moveTooltip(e) {
+  const tt = document.getElementById('tooltip');
+  tt.style.left = (e.clientX + 14) + 'px';
+  tt.style.top  = (e.clientY - 50) + 'px';
+}
+
+// CHIPS
+document.querySelectorAll('.filter-group').forEach(g => {
+  g.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      g.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+    });
+  });
+});
+
+buildWaterfall();
+buildTrend();
+</script>
+</body>
+</html>
