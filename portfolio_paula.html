@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paula Da Silva — Control de Gestión & Business Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0C2340;
+    --navy-mid: #185FA5;
+    --navy-light: #E6F1FB;
+    --navy-pale: #F0F6FC;
+    --text: #1a1a1a;
+    --text-mid: #4a4a4a;
+    --text-muted: #888;
+    --border: #e8e8e8;
+    --bg: #fafaf8;
+    --white: #ffffff;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,250,248,0.94);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+    height: 60px;
+  }
+  .nav-logo { font-family: var(--serif); font-size: 17px; color: var(--text); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-size: 13px; color: var(--text-mid); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--navy-mid); }
+
+  /* HERO */
+  .hero {
+    max-width: 1100px; margin: 0 auto;
+    padding: 5rem 2rem 4rem;
+    display: grid; grid-template-columns: 1.1fr 0.9fr;
+    gap: 4rem; align-items: center;
+  }
+  .hero-eyebrow { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--navy-mid); margin-bottom: 1rem; }
+  .hero-name { font-family: var(--serif); font-size: 52px; line-height: 1.05; letter-spacing: -1px; margin-bottom: 1.25rem; color: var(--navy); }
+  .hero-name em { color: var(--text-mid); font-style: italic; }
+  .hero-bio { font-size: 16px; color: var(--text-mid); line-height: 1.75; margin-bottom: 1.75rem; max-width: 480px; }
+  .hero-bio strong { color: var(--text); font-weight: 500; }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; }
+  .tag { font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 1px solid var(--border); color: var(--text-mid); background: var(--white); }
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 10px 20px; border-radius: var(--radius-sm); text-decoration: none; cursor: pointer; transition: all 0.2s; border: none; }
+  .btn-dark { background: var(--navy); color: var(--white); }
+  .btn-dark:hover { background: var(--navy-mid); }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--navy-mid); color: var(--navy-mid); }
+
+  .hero-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+  .stat-card.dark { background: var(--navy); border-color: var(--navy); grid-column: 1 / -1; }
+  .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-card.dark .stat-label { color: #7aabdc; }
+  .stat-number { font-family: var(--serif); font-size: 32px; line-height: 1; color: var(--navy); }
+  .stat-card.dark .stat-number { font-size: 16px; line-height: 1.5; color: #E6F1FB; }
+  .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .stat-card.dark .stat-sub { color: #7aabdc; }
+
+  /* LAYOUT */
+  .section { max-width: 1100px; margin: 0 auto; padding: 3.5rem 2rem; }
+  .section-divider { border: none; border-top: 1px solid var(--border); }
+  .section-eyebrow { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--navy-mid); margin-bottom: 2rem; }
+
+  /* TIMELINE */
+  .timeline { display: flex; flex-direction: column; }
+  .timeline-item { display: grid; grid-template-columns: 200px 1fr; gap: 2rem; padding: 2rem 0; border-bottom: 1px solid var(--border); }
+  .timeline-item:last-child { border-bottom: none; }
+  .tl-company { font-size: 13px; font-weight: 500; }
+  .tl-date { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+  .tl-badge { display: inline-block; margin-top: 8px; font-size: 10px; padding: 3px 8px; border-radius: 100px; background: var(--navy-light); color: var(--navy-mid); }
+  .tl-role { font-family: var(--serif); font-size: 20px; margin-bottom: 0.75rem; color: var(--navy); }
+  .tl-desc { font-size: 14px; color: var(--text-mid); line-height: 1.7; margin-bottom: 1rem; }
+  .tl-bullets { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .tl-bullets li { font-size: 13px; color: var(--text-mid); padding-left: 1rem; position: relative; }
+  .tl-bullets li::before { content: ''; position: absolute; left: 0; top: 9px; width: 4px; height: 4px; border-radius: 50%; background: var(--navy-mid); }
+
+  /* CASOS DE ESTUDIO */
+  .module { margin-bottom: 3rem; }
+  .module-header { display: flex; align-items: center; gap: 14px; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-letter { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+  .mod-a .module-letter { background: #E6F1FB; color: #0C447C; }
+  .mod-b .module-letter { background: #EAF3DE; color: #27500A; }
+  .mod-c .module-letter { background: #FAEEDA; color: #633806; }
+  .mod-d .module-letter { background: #FAECE7; color: #712B13; }
+  .mod-e .module-letter { background: #E1F5EE; color: #085041; }
+  .module-title { font-family: var(--serif); font-size: 22px; color: var(--navy); }
+  .module-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .case-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; transition: border-color 0.2s, transform 0.15s; }
+  .case-card:hover { border-color: var(--navy-mid); transform: translateY(-2px); }
+  .case-card.single { grid-column: 1 / -1; }
+  .case-type { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--navy-mid); margin-bottom: 8px; }
+  .case-name { font-family: var(--serif); font-size: 19px; color: var(--navy); margin-bottom: 8px; line-height: 1.25; }
+  .case-desc { font-size: 13px; color: var(--text-mid); line-height: 1.7; margin-bottom: 1.25rem; }
+  .case-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+  .tool-badge { font-size: 10px; padding: 4px 10px; border-radius: 100px; background: var(--bg); border: 1px solid var(--border); color: var(--text-mid); }
+  .case-status { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); padding-top: 1rem; border-top: 1px solid var(--border); width: 100%; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot-ready { background: #1D9E75; }
+  .dot-wip { background: #EF9F27; }
+
+  /* SKILLS */
+  .skills-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .skill-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.1rem; }
+  .skill-name { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+  .skill-level { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+  .skill-bar { height: 3px; background: var(--border); border-radius: 3px; }
+  .skill-fill { height: 3px; background: var(--navy-mid); border-radius: 3px; }
+
+  /* SOBRE MÍ */
+  .about-grid { display: grid; grid-template-columns: 280px 1fr; gap: 4rem; align-items: start; }
+  .about-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; position: sticky; top: 80px; }
+  .about-initials { width: 64px; height: 64px; border-radius: 50%; background: var(--navy-light); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 20px; color: var(--navy-mid); margin-bottom: 1rem; }
+  .about-name { font-family: var(--serif); font-size: 18px; color: var(--navy); margin-bottom: 4px; }
+  .about-role { font-size: 12px; color: var(--text-muted); margin-bottom: 1.25rem; }
+  .meta-item { font-size: 12px; color: var(--text-mid); margin-bottom: 8px; }
+  .meta-item strong { color: var(--text-muted); font-weight: 400; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 1px; }
+  .about-text h3 { font-family: var(--serif); font-size: 28px; color: var(--navy); margin-bottom: 1.25rem; line-height: 1.2; }
+  .about-text p { font-size: 15px; color: var(--text-mid); line-height: 1.8; margin-bottom: 1.25rem; }
+  .edu-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 1.5rem; }
+  .edu-item { padding: 1rem 1.25rem; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .edu-degree { font-size: 13px; font-weight: 500; color: var(--text); }
+  .edu-inst { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .edu-year { font-size: 11px; color: var(--navy-mid); margin-top: 4px; }
+
+  /* CONTACTO */
+  .contact-section { background: var(--navy); padding: 4rem 2rem; text-align: center; }
+  .contact-section h2 { font-family: var(--serif); font-size: 36px; color: white; margin-bottom: 0.5rem; }
+  .contact-section p { color: #7aabdc; font-size: 15px; margin-bottom: 2rem; }
+  .contact-links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .contact-link { display: inline-flex; align-items: center; font-family: var(--sans); font-size: 13px; padding: 11px 22px; border-radius: var(--radius-sm); text-decoration: none; transition: all 0.2s; }
+  .contact-link.primary { background: white; color: var(--navy); font-weight: 500; }
+  .contact-link.primary:hover { background: var(--navy-light); }
+  .contact-link.ghost { background: transparent; color: #B5D4F4; border: 1px solid #2d5a8a; }
+  .contact-link.ghost:hover { border-color: #7aabdc; color: white; }
+
+  footer { padding: 1.5rem 2rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; }
+  footer p { font-size: 12px; color: var(--text-muted); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.6s ease forwards; }
+  .fade-up-2 { animation: fadeUp 0.6s 0.1s ease both; }
+
+  @media (max-width: 768px) {
+    .hero { grid-template-columns: 1fr; gap: 2.5rem; padding: 3rem 1.25rem; }
+    .hero-name { font-size: 38px; }
+    .cases-grid { grid-template-columns: 1fr; }
+    .case-card.single { grid-column: 1; }
+    .skills-grid { grid-template-columns: 1fr 1fr; }
+    .about-grid { grid-template-columns: 1fr; }
+    .about-card { position: static; }
+    .timeline-item { grid-template-columns: 1fr; gap: 0.5rem; }
+    .nav-links { display: none; }
+    .section { padding: 2.5rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">Paula Da Silva</a>
+  <ul class="nav-links">
+    <li><a href="#trayectoria">Trayectoria</a></li>
+    <li><a href="#casos">Casos de estudio</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#sobre-mi">Sobre mí</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section style="background: var(--white); border-bottom: 1px solid var(--border);">
+  <div class="hero">
+    <div class="fade-up">
+      <p class="hero-eyebrow">Portafolio profesional</p>
+      <h1 class="hero-name">Control de Gestión<br>& <em>Business Intelligence</em></h1>
+      <p class="hero-bio">Construyo sistemas de gestión donde antes solo había caos. Especialista en <strong>diagnóstico operacional, reportería ejecutiva y análisis de datos</strong> con foco en decisiones que impactan el negocio.</p>
+      <div class="hero-tags">
+        <span class="tag">Control de Gestión</span>
+        <span class="tag">Power BI</span>
+        <span class="tag">DAX</span>
+        <span class="tag">Mejora de Procesos</span>
+        <span class="tag">BPMN</span>
+        <span class="tag">Excel Avanzado</span>
+        <span class="tag">Machine Learning</span>
+        <span class="tag">IA Aplicada</span>
+      </div>
+      <div class="hero-cta">
+        <a class="btn btn-dark" href="#casos">Ver casos de estudio</a>
+        <a class="btn btn-outline" href="#trayectoria">Trayectoria</a>
+      </div>
+    </div>
+    <div class="hero-stats fade-up-2">
+      <div class="stat-card">
+        <div class="stat-label">Experiencia</div>
+        <div class="stat-number">8+</div>
+        <div class="stat-sub">años en control de gestión y BI</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Procesos documentados</div>
+        <div class="stat-number">30+</div>
+        <div class="stat-sub">estandarizados en Frigomart</div>
+      </div>
+      <div class="stat-card dark">
+        <div class="stat-label">Logro principal</div>
+        <div class="stat-number">"Construí desde cero el primer sistema de control de gestión — donde antes no existía ninguno."</div>
+        <div class="stat-sub">Frigomart S.A. · 2025</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAYECTORIA -->
+<section class="section" id="trayectoria">
+  <p class="section-eyebrow">Trayectoria profesional</p>
+  <div class="timeline">
+
+    <div class="timeline-item">
+      <div>
+        <div class="tl-company">Frigomart S.A.</div>
+        <div class="tl-date">oct. 2025 — feb. 2026</div>
+        <span class="tl-badge">Ascenso interno</span>
+      </div>
+      <div>
+        <h3 class="tl-role">Subgerente de Planta / Control de Gestión e Inteligencia de Negocios</h3>
+        <p class="tl-desc">Lideré la transformación operacional de la planta, instalando sistemas de gestión, visibilidad de datos y coordinación transversal en una operación con alta informalidad previa.</p>
+        <ul class="tl-bullets">
+          <li>Diseñé e instalé capacidades de control de gestión con KPIs operacionales y financieros para seguimiento gerencial</li>
+          <li>Documenté y estandaricé más de 30 procesos críticos, fortaleciendo control interno y trazabilidad operativa</li>
+          <li>Implementé dashboards ejecutivos en Power BI para producción, ventas, inventarios e incumplimientos</li>
+          <li>Articulé trabajo entre producción, operaciones, calidad, logística, ventas y administración</li>
+          <li>Evalué e impulsé herramientas tecnológicas para profesionalizar la operación</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div>
+        <div class="tl-company">Frigomart S.A.</div>
+        <div class="tl-date">feb. 2025 — sep. 2025</div>
+      </div>
+      <div>
+        <h3 class="tl-role">Senior de Business Intelligence y Control de Gestión</h3>
+        <p class="tl-desc">Soporte estratégico a la gestión mediante diseño de dashboards, análisis de desviaciones y reportería ejecutiva para múltiples áreas.</p>
+        <ul class="tl-bullets">
+          <li>Diseñé dashboards e indicadores para seguimiento operacional, comercial y financiero</li>
+          <li>Consolidé, depuré y estructuré bases de datos mejorando gobernanza del dato</li>
+          <li>Generé análisis comparativos, tendencias y proyecciones para planificación operativa</li>
+          <li>Automaticé y optimicé reportes reduciendo tiempos de análisis</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div>
+        <div class="tl-company">Digevo</div>
+        <div class="tl-date">dic. 2023 — ene. 2025</div>
+      </div>
+      <div>
+        <h3 class="tl-role">Customer Success Executive</h3>
+        <p class="tl-desc">Gestión de cartera de cuentas estratégicas con foco en seguimiento de indicadores, detección temprana de desvíos y comunicación ejecutiva de resultados.</p>
+        <ul class="tl-bullets">
+          <li>Seguimiento de KPIs de servicio para monitorear cumplimiento y evolución de cuentas</li>
+          <li>Reportes y presentaciones para clientes internos y externos</li>
+          <li>Identificación de oportunidades de mejora a partir de tendencias e incidencias</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div>
+        <div class="tl-company">Chipax</div>
+        <div class="tl-date">dic. 2021 — sep. 2022</div>
+      </div>
+      <div>
+        <h3 class="tl-role">Customer Success Executive</h3>
+        <p class="tl-desc">Gestión de cuentas en startup de tecnología financiera. Seguimiento de indicadores, coordinación interna y análisis de métricas operativas.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- CASOS DE ESTUDIO -->
+<section class="section" id="casos">
+  <p class="section-eyebrow">Casos de estudio</p>
+  <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 2.5rem; max-width: 600px;">Proyectos construidos sobre datasets públicos en el contexto de una empresa ficticia de distribución de alimentos — FríoSur Ltda. Cada caso demuestra una capacidad técnica aplicada a un problema real de negocio.</p>
+
+  <!-- MÓDULO A -->
+  <div class="module mod-a">
+    <div class="module-header">
+      <div class="module-letter">A</div>
+      <div>
+        <div class="module-title">Resultados financieros y operacionales</div>
+        <div class="module-sub">El core del control de gestión</div>
+      </div>
+    </div>
+    <div class="cases-grid">
+      <div class="case-card">
+        <p class="case-type">Power BI · DAX · Power Query</p>
+        <h3 class="case-name">Dashboard de resultados operacionales automatizado</h3>
+        <p class="case-desc">P&L simplificado, márgenes, costos y KPIs clave con actualización automática desde fuente de datos. Diseñado para lectura gerencial en menos de 2 minutos.</p>
+        <div class="case-tools">
+          <span class="tool-badge">Power BI</span>
+          <span class="tool-badge">DAX</span>
+          <span class="tool-badge">Power Query</span>
+        </div>
+        <div class="case-status"><span class="dot dot-wip"></span>En construcción</div>
+      </div>
+      <div class="case-card">
+        <p class="case-type">Excel · Power Query</p>
+        <h3 class="case-name">Modelo de control presupuestario</h3>
+        <p class="case-desc">Real vs. presupuesto por centro de costo, varianza mensual y acumulada, alertas de desviación y resumen ejecutivo automatizado.</p>
+        <div class="case-tools">
+          <span class="tool-badge">Excel</span>
+          <span class="tool-badge">Power Query</span>
+          <span class="tool-badge">Tablas dinámicas</span>
+        </div>
+        <div class="case-status"><span class="dot dot-wip"></span>En construcción</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MÓDULO B -->
+  <div class="module mod-b">
+    <div class="module-header">
+      <div class="module-letter">B</div>
+      <div>
+        <div class="module-title">Ventas — seguimiento e incumplimientos</div>
+        <div class="module-sub">Visibilidad comercial en tiempo real</div>
+      </div>
+    </div>
+    <div class="cases-grid">
+      <div class="case-card">
+        <p class="case-type">Power BI · DAX</p>
+        <h3 class="case-name">Dashboard de ventas con incumplimientos</h3>
+        <p class="case-desc">Cumplimiento vs. meta por producto, canal y período. Ranking de incumplimientos, alertas de desviación crítica y drill-down por categoría.</p>
+        <div class="case-tools">
+          <span class="tool-badge">Power BI</span>
+          <span class="tool-badge">DAX</span>
+          <span class="tool-badge">KPIs comerciales</span>
+        </div>
+        <div class="case-status"><span class="dot dot-wip"></span>En construcción</div>
+      </div>
+      <div class="case-card">
+        <p class="case-type">Python · Excel · Power BI</p>
+        <h3 class="case-name">Bandas de precio por producto (pricing)</h3>
+        <p class="case-desc">Análisis de precios de venta por segmento y categoría, comparativo de mercado y detección de outliers de margen. Identificación de productos fuera de banda.</p>
+        <div class="case-tools">
+          <span class="tool-badge">Python</span>
+          <span class="tool-badge">Excel</span>
+          <span class="tool-badge">Power BI</span>
+          <span class="tool-badge">Estadística descriptiva</span>
+        </div>
+        <div class="case-status"><span class="dot dot-wip"></span>En construcción</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MÓDULO C -->
+  <div class="module mod-c">
+    <div class="module-header">
+      <div class="module-letter">C</div>
+      <div>
+        <div class="module-title">Producción — control e incumplimientos</div>
+        <div class="module-sub">Trazabilidad operacional</div>
+      </div>
+    </div>
+    <div class="cases-grid">
+      <div class="case-card">
+        <p class="case-type">Power BI · DAX</p>
+        <h3 class="case-name">Dashboard de incumplimientos de producción</h3>
+        <p class="case-desc">Cumplimiento de órdenes de producción, tiempos de ciclo, mermas y desviaciones críticas. Drill-down por línea, turno y período.</p>
+        <div class="case-tools">
+          <span class="tool-badge">Power BI</span>
+          <span class="tool-badge">DAX</span>
+          <span class="tool-badge">KPIs operacionales</span>
+        </div>
+        <div class="case-status"><span class="dot dot-wip"></span>En construcción</div>
+      </div>
+      <div class="case-card">
+        <p class="case-type">Bizagi · BPMN 2.0</p>
+        <h3 class="case-name">Mapeo y rediseño de proceso productivo</h3>
+        <p class="case-desc">Levantamiento AS-IS del flujo de producción y despacho. Identificación de cuellos de botella y puntos de control. Propuesta TO-BE con mejoras documentadas.</p>
+        <div class="case-tools">
+          <span class="tool-badge">Bizagi</span>
+          <span class="tool-badge">BPMN 2.0</span>
+          <span class="tool-badge">Análisis de brechas</span>
+        </div>
+        <div class="case-status"><span class="dot dot-wip"></span>En construcción</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MÓDULO D -->
+  <div class="module mod-d">
+    <div class="module-header">
+      <div class="module-letter">D</div>
+      <div>
+        <div class="module-title">Modelos predictivos</div>
+        <div class="module-sub">Machine learning aplicado a la operación</div>
+      </div>
+    </div>
+    <div class="cases-grid">
+      <div class="case-card">
+        <p class="case-type">Python · Scikit-learn · Power BI</p>
+        <h3 class="case-name">Predicción de demanda de ventas</h3>
+        <p class="case-desc">Forecasting de ventas por producto y período usando series de tiempo y regresión. Resultado exportado a Power BI como insumo para planificación comercial.</p>
+        <div class="case-tools">
+          <span class="tool-badge">Python</span>
+          <span class="tool-badge">Scikit-learn</span>
+          <span class="tool-badge">Pandas</span>
+          <span class="tool-badge">Power BI</span>
+        </div>
+        <div class="case-status"><span class="dot dot-wip"></span>En construcción</div>
+      </div>
+      <div class="case-card">
+        <p class="case-type">Python · Pandas · Scikit-learn</p>
+        <h3 class="case-name">Predicción de compras de inventario</h3>
+        <p class="case-desc">Modelo de reposición óptima basado en demanda histórica, stock mínimo y lead time de proveedores. Alertas de quiebre de stock anticipadas.</p>
+        <div class="case-tools">
+          <span class="tool-badge">Python</span>
+          <span class="tool-badge">Pandas</span>
+          <span class="tool-badge">Scikit-learn</span>
+          <span class="tool-badge">Visualización</span>
+        </div>
+        <div class="case-status"><span class="dot dot-wip"></span>En construcción</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MÓDULO E -->
+  <div class="module mod-e">
+    <div class="module-header">
+      <div class="module-letter">E</div>
+      <div>
+        <div class="module-title">Análisis exploratorio de datos</div>
+        <div class="module-sub">La base de todos los modelos anteriores</div>
+      </div>
+    </div>
+    <div class="cases-grid">
+      <div class="case-card single">
+        <p class="case-type">Python · SQL · Pandas</p>
+        <h3 class="case-name">EDA operacional — inventario y producción</h3>
+        <p class="case-desc">Limpieza, exploración y visualización de datos crudos de operación. Detección de anomalías, patrones estacionales y correlaciones clave. Hallazgos documentados como reporte ejecutivo accionable.</p>
+        <div class="case-tools">
+          <span class="tool-badge">Python</span>
+          <span class="tool-badge">Pandas</span>
+          <span class="tool-badge">SQL</span>
+          <span class="tool-badge">Matplotlib</span>
+          <span class="tool-badge">Seaborn</span>
+        </div>
+        <div class="case-status"><span class="dot dot-wip"></span>En construcción</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<hr class="section-divider">
+
+<!-- STACK TÉCNICO -->
+<section class="section" id="stack">
+  <p class="section-eyebrow">Stack técnico</p>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-name">Power BI</div>
+      <div class="skill-level">Avanzado</div>
+      <div class="skill-bar"><div class="skill-fill" style="width:92%"></div></div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-name">DAX</div>
+      <div class="skill-level">Avanzado</div>
+      <div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-name">Excel</div>
+      <div class="skill-level">Avanzado</div>
+      <div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-name">Power Query</div>
+      <div class="skill-level">Avanzado</div>
+      <div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-name">SQL</div>
+      <div class="skill-level">Intermedio</div>
+      <div class="skill-bar"><div class="skill-fill" style="width:60%"></div></div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-name">Python</div>
+      <div class="skill-level">Intermedio</div>
+      <div class="skill-bar"><div class="skill-fill" style="width:55%"></div></div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-name">Bizagi / BPMN</div>
+      <div class="skill-level">Avanzado</div>
+      <div class="skill-bar"><div class="skill-fill" style="width:82%"></div></div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-name">Machine Learning</div>
+      <div class="skill-level">Intermedio</div>
+      <div class="skill-bar"><div class="skill-fill" style="width:50%"></div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- SOBRE MÍ -->
+<section class="section" id="sobre-mi">
+  <p class="section-eyebrow">Sobre mí</p>
+  <div class="about-grid">
+    <div class="about-card">
+      <div class="about-initials">PD</div>
+      <div class="about-name">Paula Da Silva</div>
+      <div class="about-role">Ingeniera Comercial · BI & Control de Gestión</div>
+      <div class="meta-item"><strong>Ubicación</strong>Ñuñoa, Santiago · Chile</div>
+      <div class="meta-item"><strong>Email</strong>paula.dasilva.arriagada@gmail.com</div>
+      <div class="meta-item"><strong>LinkedIn</strong>linkedin.com/in/paula-da-silva-arriagada</div>
+      <div class="meta-item"><strong>Disponibilidad</strong>Inmediata</div>
+      <div class="meta-item"><strong>Idiomas</strong>Español nativo · Inglés avanzado</div>
+    </div>
+    <div class="about-text">
+      <h3>Diagnóstico, estructura,<br>sistemas que duran.</h3>
+      <p>Soy ingeniera comercial especializada en construir orden donde antes había caos. Mi trabajo consiste en entrar a organizaciones complejas, leer rápido dónde están los puntos de dolor reales y diseñar sistemas que funcionen sin necesitar supervisión constante.</p>
+      <p>En Frigomart construí desde cero el primer sistema de control de gestión de la empresa: sin reportería previa, sin procesos estandarizados, coordinando áreas que no se hablaban entre sí. El resultado fue un ecosistema de dashboards ejecutivos en Power BI, más de 30 procesos documentados y una cultura de datos que antes no existía.</p>
+      <p>Lo que me mueve no es el dato en sí, sino lo que habilita: decisiones más rápidas, menos fricción entre áreas, menos sorpresas al cierre de mes.</p>
+      <div class="edu-grid">
+        <div class="edu-item">
+          <div class="edu-degree">Magíster en Planificación y Control de Gestión</div>
+          <div class="edu-inst">Universidad de Valparaíso</div>
+          <div class="edu-year">2026 — en curso</div>
+        </div>
+        <div class="edu-item">
+          <div class="edu-degree">Diplomado en Inteligencia Artificial Aplicada a los Negocios</div>
+          <div class="edu-inst">Universidad de Chile</div>
+          <div class="edu-year">2025</div>
+        </div>
+        <div class="edu-item">
+          <div class="edu-degree">Diplomado en Business Intelligence & Data Visualization</div>
+          <div class="edu-inst">Universidad de Valparaíso</div>
+          <div class="edu-year">2023 — 2024</div>
+        </div>
+        <div class="edu-item">
+          <div class="edu-degree">Ingeniería Comercial</div>
+          <div class="edu-inst">Universidad de Valparaíso</div>
+          <div class="edu-year">2019</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<div id="contacto" class="contact-section">
+  <h2>¿Conversamos?</h2>
+  <p>Disponibilidad inmediata · Santiago, Chile</p>
+  <div class="contact-links">
+    <a href="mailto:paula.dasilva.arriagada@gmail.com" class="contact-link primary">Enviar email</a>
+    <a href="https://linkedin.com/in/paula-da-silva-arriagada" target="_blank" class="contact-link ghost">LinkedIn</a>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 Paula Da Silva · Ingeniera Comercial & BI Analyst</p>
+  <p>Santiago, Chile</p>
+</footer>
+
+</body>
+</html>
